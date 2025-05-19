@@ -2,6 +2,7 @@
 set -e
 
 PROJECT_ID=${1:-1}  # Default project ID is 1
+PROJECT_VERSION=${2:-v1}  # Default project version is v1
 OUTPUT_FILE="dataset/yolo_export.zip"  # Default output filename
 
 if [ -z "$REFRESH_TOKEN" ]; then
@@ -34,7 +35,7 @@ else
 fi
 
 echo "Unzipping the exported data..."
-unzip -o "$OUTPUT_FILE" -d dataset
+unzip -o "$OUTPUT_FILE" -d dataset/$PROJECT_VERSION
 
 if [ $? -ne 0 ]; then
   echo "Error: Failed to unzip the exported data."
