@@ -85,3 +85,17 @@ dvc pull
 ```
 
 This workflow ensures raw images, annotations, and versioned datasets are organized, reproducible, and easy to manage for machine learning projects.
+
+### Showcase
+
+#### Uploading dataset
+
+https://drive.google.com/file/d/1QmtFMyZHEWxjW9rUYWZUWqpB-1d4D9yc/view?usp=sharing
+
+#### Annotating (labeling)
+
+https://drive.google.com/file/d/1vCPWTC9McjUlu5Ge02HCznFDdggMo_Yu/view?usp=sharing
+
+#### Versioning
+
+https://drive.google.com/file/d/1rTcz-Svvt_s0NT05jcgHJK5mu642BER7/view?usp=sharing
