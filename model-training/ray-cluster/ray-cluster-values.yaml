@@ -1,0 +1,69 @@
+image:
+  repository: rayproject/ray
+  tag: "2.41.0"
+  pullPolicy: IfNotPresent
+
+head:
+  enableInTreeAutoscaling: true
+  autoscalerOptions:
+    upscalingMode: Default
+    idleTimeoutSeconds: 60
+    
+  rayStartParams:
+    num-cpus: "0"
+    dashboard-host: "0.0.0.0"
+    metrics-export-port: "8080"
+  
+  containerEnv:
+  - name: RAY_GRAFANA_IFRAME_HOST
+    value: "http://127.0.0.1:3000"
+  - name: RAY_GRAFANA_HOST
+    value: "http://prometheus-grafana.prometheus-system.svc:80"
+  - name: RAY_PROMETHEUS_HOST
+    value: "http://prometheus-kube-prometheus-prometheus.prometheus-system.svc:9090"
+  - name: RAY_PROMETHEUS_NAME
+    value: "Prometheus"
+  
+  resources:
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+
+  # Add back the toleration for control plane nodes
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+  # Add back the node selector for control plane nodes
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+
+worker:
+  replicas: 0
+  minReplicas: 0
+  maxReplicas: 10
+  
+  rayStartParams:
+    metrics-export-port: "8080"
+  
+  containerEnv:
+  - name: RAY_GRAFANA_IFRAME_HOST
+    value: "http://127.0.0.1:3000"
+  - name: RAY_GRAFANA_HOST
+    value: "http://prometheus-grafana.prometheus-system.svc:80"
+  - name: RAY_PROMETHEUS_HOST
+    value: "http://prometheus-kube-prometheus-prometheus.prometheus-system.svc:9090"
+  - name: RAY_PROMETHEUS_NAME
+    value: "Prometheus"
+  
+  resources:
+    limits:
+      cpu: "2"
+      memory: "3Gi"
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
