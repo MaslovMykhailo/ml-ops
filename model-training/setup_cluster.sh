@@ -16,76 +16,81 @@ kind create cluster --config kind/kind-config.yaml
 echo "Waiting for cluster to be ready..."
 kubectl wait --for=condition=ready nodes --all --timeout=300s
 
+# Pre-pull the images to avoid timeout issues
+echo "Pre-pulling required images..."
+# Prometheus and monitoring related images
+docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3
+docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
+docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
+docker pull quay.io/thanos/thanos:v0.38.0
+# Pull both versions to ensure we have the right one
+docker pull quay.io/prometheus/prometheus:v2.51.0
+docker pull quay.io/prometheus/prometheus:v3.4.1
+# Pull the correct alertmanager version
+docker pull quay.io/prometheus/alertmanager:v0.28.1
+# Pull both versions of sidecar
+docker pull quay.io/kiwigrid/k8s-sidecar:1.26.1
+docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
+# Pull the correct kube-state-metrics version
+docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
+# Pull both versions of node-exporter
+docker pull quay.io/prometheus/node-exporter:v1.8.0
+docker pull quay.io/prometheus/node-exporter:v1.9.1
+# Pull both versions of grafana
+docker pull grafana/grafana:10.4.3
+docker pull grafana/grafana:12.0.0-security-01
+docker pull curlimages/curl:8.5.0
+# Additional utilities
+docker pull docker.io/library/busybox:1.31.1
+
+# KubeRay related images
+docker pull quay.io/kuberay/operator:v1.3.2
+docker pull spodarets/ray-worker:2.46.0-py310-aarch64
+
+echo "Loading images into kind cluster..."
+# Prometheus and monitoring related images
+kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3 --name ray-cluster
+kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
+kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
+kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
+# Load both versions to ensure we have the right one
+kind load docker-image quay.io/prometheus/prometheus:v2.51.0 --name ray-cluster
+kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
+# Load the correct alertmanager version
+kind load docker-image quay.io/prometheus/alertmanager:v0.28.1 --name ray-cluster
+# Load both versions of sidecar
+kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.26.1 --name ray-cluster
+kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.30.0 --name ray-cluster
+# Load the correct kube-state-metrics version
+kind load docker-image registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 --name ray-cluster
+# Load both versions of node-exporter
+kind load docker-image quay.io/prometheus/node-exporter:v1.8.0 --name ray-cluster
+kind load docker-image quay.io/prometheus/node-exporter:v1.9.1 --name ray-cluster
+# Load both versions of grafana
+kind load docker-image grafana/grafana:10.4.3 --name ray-cluster
+kind load docker-image grafana/grafana:12.0.0-security-01 --name ray-cluster
+kind load docker-image curlimages/curl:8.5.0 --name ray-cluster
+# Additional utilities
+kind load docker-image docker.io/library/busybox:1.31.1 --name ray-cluster
+
+# KubeRay related images
+kind load docker-image quay.io/kuberay/operator:v1.3.2 --name ray-cluster
+kind load docker-image spodarets/ray-worker:2.46.0-py310-aarch64 --name ray-cluster
+
 echo "=== 2. Installing Prometheus Stack ==="
 # https://docs.ray.io/en/latest/cluster/kubernetes/k8s-ecosystem/prometheus-grafana.html
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm repo update
 
-# # Pre-pull the images to avoid timeout issues
-# echo "Pre-pulling required images..."
-# # Prometheus and monitoring related images
-# docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3
-# docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
-# docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
-# docker pull quay.io/thanos/thanos:v0.38.0
-# # Pull both versions to ensure we have the right one
-# docker pull quay.io/prometheus/prometheus:v2.51.0
-# docker pull quay.io/prometheus/prometheus:v3.4.1
-# # Pull the correct alertmanager version
-# docker pull quay.io/prometheus/alertmanager:v0.28.1
-# # Pull both versions of sidecar
-# docker pull quay.io/kiwigrid/k8s-sidecar:1.26.1
-# docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
-# # Pull the correct kube-state-metrics version
-# docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
-# # Pull both versions of node-exporter
-# docker pull quay.io/prometheus/node-exporter:v1.8.0
-# docker pull quay.io/prometheus/node-exporter:v1.9.1
-# # Pull both versions of grafana
-# docker pull grafana/grafana:10.4.3
-# docker pull grafana/grafana:12.0.0-security-01
-# docker pull curlimages/curl:8.5.0
-# # Additional utilities
-# docker pull docker.io/library/busybox:1.31.1
-
-# # KubeRay related images
-# docker pull quay.io/kuberay/operator:v1.3.2
-# docker pull spodarets/ray-worker:2.46.0-py310-aarch64
-
-# echo "Loading images into kind cluster..."
-# # Prometheus and monitoring related images
-# kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3 --name ray-cluster
-# kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
-# kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
-# kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
-# # Load both versions to ensure we have the right one
-# kind load docker-image quay.io/prometheus/prometheus:v2.51.0 --name ray-cluster
-# kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
-# # Load the correct alertmanager version
-# kind load docker-image quay.io/prometheus/alertmanager:v0.28.1 --name ray-cluster
-# # Load both versions of sidecar
-# kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.26.1 --name ray-cluster
-# kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.30.0 --name ray-cluster
-# # Load the correct kube-state-metrics version
-# kind load docker-image registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 --name ray-cluster
-# # Load both versions of node-exporter
-# kind load docker-image quay.io/prometheus/node-exporter:v1.8.0 --name ray-cluster
-# kind load docker-image quay.io/prometheus/node-exporter:v1.9.1 --name ray-cluster
-# # Load both versions of grafana
-# kind load docker-image grafana/grafana:10.4.3 --name ray-cluster
-# kind load docker-image grafana/grafana:12.0.0-security-01 --name ray-cluster
-# kind load docker-image curlimages/curl:8.5.0 --name ray-cluster
-# # Additional utilities
-# kind load docker-image docker.io/library/busybox:1.31.1 --name ray-cluster
-
-# # KubeRay related images
-# kind load docker-image quay.io/kuberay/operator:v1.3.2 --name ray-cluster
-# kind load docker-image spodarets/ray-worker:2.46.0-py310-aarch64 --name ray-cluster
-
 kubectl create namespace prometheus-system || true
 
-echo "Installing kube-prometheus-stack..."
+# echo "Installing kube-prometheus-stack..."
+# helm install prometheus prometheus-community/kube-prometheus-stack \
+#     --namespace prometheus-system \
+#     --version 61.7.2 \
+#     -f monitoring/prometheus/prometheus-values.yaml
+
 helm install prometheus prometheus-community/kube-prometheus-stack \
     --namespace prometheus-system \
     --timeout 60s \
@@ -93,7 +98,7 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
 
 echo "=== 3. Waiting for Prometheus stack to be ready ==="
 echo "Waiting for Prometheus operator..."
-kubectl wait --for=condition=available --timeout=300s deployment/prometheus-kube-prometheus-operator -n prometheus-system
+kubectl wait --for=condition=available --timeout=60s deployment/prometheus-kube-prometheus-operator -n prometheus-system
 
 echo "Waiting for Prometheus StatefulSet to be created..."
 while true; do
@@ -106,7 +111,6 @@ while true; do
 done
 
 echo "Waiting for Prometheus pod to be ready..."
-echo "This might take some time as the images are being loaded into the cluster..."
 kubectl wait --for=condition=ready --timeout=300s pod/prometheus-prometheus-kube-prometheus-prometheus-0 -n prometheus-system
 
 echo "Waiting for Grafana..."
@@ -116,7 +120,7 @@ echo "=== 4. Installing KubeRay operator ==="
 helm install kuberay-operator kuberay/kuberay-operator --version 1.3.2 
 
 echo "=== 5. Waiting for KubeRay operator to be ready ==="
-kubectl wait --for=condition=available --timeout=60s deployment/kuberay-operator
+kubectl wait --for=condition=available --timeout=300s deployment/kuberay-operator
 
 echo "Checking operator status..."
 kubectl get deployment kuberay-operator -o wide
@@ -150,7 +154,7 @@ wait_for_resource_to_exist() {
 wait_for_resource_to_exist "pod" "ray.io/node-type=head" "head pod"
 
 echo "Waiting for head pod to be ready..."
-kubectl wait --for=condition=ready --timeout=300s pod -l ray.io/node-type=head
+kubectl wait --for=condition=ready --timeout=600s pod -l ray.io/node-type=head
 
 echo "=== 9. Verifying cluster health ==="
 echo "Checking cluster status..."

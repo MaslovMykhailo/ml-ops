@@ -28,11 +28,11 @@ prometheus:
     # Resource limits
     resources:
       requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
         memory: "2Gi"
         cpu: "1"
-      limits:
-        memory: "4Gi"
-        cpu: "2"
     
     # Set maximumStartupDurationSeconds to meet minimum requirement
     maximumStartupDurationSeconds: 120
@@ -53,11 +53,11 @@ grafana:
   # Resource limits
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "250m"
     limits:
-      memory: "2Gi"
-      cpu: "1"
+      memory: "512Mi"
+      cpu: "500m"
   
   # Grafana configuration for Ray Dashboard iframe integration
   grafana.ini:
@@ -94,11 +94,11 @@ alertmanager:
   alertmanagerSpec:
     resources:
       requests:
-        memory: "500Mi"
-        cpu: "500m"
+        memory: "128Mi"
+        cpu: "100m"
       limits:
-        memory: "1Gi"
-        cpu: "1"
+        memory: "256Mi"
+        cpu: "200m"
     
     storage:
       volumeClaimTemplate:
@@ -122,8 +122,8 @@ prometheusOperator:
   enabled: true
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "100m"
     limits:
-      memory: "1Gi"
-      cpu: "1" 
+      memory: "512Mi"
+      cpu: "200m" 

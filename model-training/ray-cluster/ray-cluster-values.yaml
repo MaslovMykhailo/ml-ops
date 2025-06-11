@@ -26,19 +26,18 @@ head:
   
   resources:
     limits:
-      cpu: "2"
-      memory: "6Gi"
-    requests:
       cpu: "1"
       memory: "6Gi"
+    requests:
+      cpu: "0.5"
+      memory: "6Gi"
 
-  # Add back the toleration for control plane nodes
+  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
       effect: "NoSchedule"
 
-  # Add back the node selector for control plane nodes
   nodeSelector:
     node-role.kubernetes.io/control-plane: ""
 
@@ -62,8 +61,8 @@ worker:
   
   resources:
     limits:
-      cpu: "2"
+      cpu: "1"
       memory: "4Gi"
     requests:
-      cpu: "1"
+      cpu: "0.5"
       memory: "4Gi"
