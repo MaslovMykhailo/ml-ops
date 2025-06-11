@@ -1,6 +1,6 @@
 image:
-  repository: rayproject/ray
-  tag: "2.41.0"
+  repository: spodarets/ray-worker
+  tag: "2.46.0-py310-aarch64"
   pullPolicy: IfNotPresent
 
 head:
@@ -26,11 +26,11 @@ head:
   
   resources:
     limits:
-      cpu: "1"
-      memory: "2Gi"
+      cpu: "2"
+      memory: "6Gi"
     requests:
-      cpu: "500m"
-      memory: "1Gi"
+      cpu: "1"
+      memory: "6Gi"
 
   # Add back the toleration for control plane nodes
   tolerations:
@@ -63,7 +63,7 @@ worker:
   resources:
     limits:
       cpu: "2"
-      memory: "3Gi"
+      memory: "4Gi"
     requests:
-      cpu: "500m"
-      memory: "1Gi"
+      cpu: "1"
+      memory: "4Gi"

@@ -22,72 +22,66 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm repo update
 
-# Pre-pull the images to avoid timeout issues
-echo "Pre-pulling required images..."
-# Prometheus and monitoring related images
-docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3
-docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
-docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
-docker pull quay.io/thanos/thanos:v0.38.0
-# Pull both versions to ensure we have the right one
-docker pull quay.io/prometheus/prometheus:v2.51.0
-docker pull quay.io/prometheus/prometheus:v3.4.1
-# Pull the correct alertmanager version
-docker pull quay.io/prometheus/alertmanager:v0.28.1
-# Pull both versions of sidecar
-docker pull quay.io/kiwigrid/k8s-sidecar:1.26.1
-docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
-# Pull the correct kube-state-metrics version
-docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
-# Pull both versions of node-exporter
-docker pull quay.io/prometheus/node-exporter:v1.8.0
-docker pull quay.io/prometheus/node-exporter:v1.9.1
-# Pull both versions of grafana
-docker pull grafana/grafana:10.4.3
-docker pull grafana/grafana:12.0.0-security-01
-docker pull curlimages/curl:8.5.0
-# Additional utilities
-docker pull docker.io/library/busybox:1.31.1
+# # Pre-pull the images to avoid timeout issues
+# echo "Pre-pulling required images..."
+# # Prometheus and monitoring related images
+# docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3
+# docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
+# docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
+# docker pull quay.io/thanos/thanos:v0.38.0
+# # Pull both versions to ensure we have the right one
+# docker pull quay.io/prometheus/prometheus:v2.51.0
+# docker pull quay.io/prometheus/prometheus:v3.4.1
+# # Pull the correct alertmanager version
+# docker pull quay.io/prometheus/alertmanager:v0.28.1
+# # Pull both versions of sidecar
+# docker pull quay.io/kiwigrid/k8s-sidecar:1.26.1
+# docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
+# # Pull the correct kube-state-metrics version
+# docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
+# # Pull both versions of node-exporter
+# docker pull quay.io/prometheus/node-exporter:v1.8.0
+# docker pull quay.io/prometheus/node-exporter:v1.9.1
+# # Pull both versions of grafana
+# docker pull grafana/grafana:10.4.3
+# docker pull grafana/grafana:12.0.0-security-01
+# docker pull curlimages/curl:8.5.0
+# # Additional utilities
+# docker pull docker.io/library/busybox:1.31.1
 
-# KubeRay related images
-docker pull quay.io/kuberay/operator:v1.3.2
-docker pull rayproject/ray:2.41.0
-# Also pull the local Ray worker image if it exists
-docker pull localhost:5000/ray-worker:latest || echo "Local Ray worker image not found, will be created later"
+# # KubeRay related images
+# docker pull quay.io/kuberay/operator:v1.3.2
+# docker pull spodarets/ray-worker:2.46.0-py310-aarch64
 
-echo "Loading images into kind cluster..."
-# Prometheus and monitoring related images
-kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3 --name ray-cluster
-kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
-kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
-kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
-# Load both versions to ensure we have the right one
-kind load docker-image quay.io/prometheus/prometheus:v2.51.0 --name ray-cluster
-kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
-# Load the correct alertmanager version
-kind load docker-image quay.io/prometheus/alertmanager:v0.28.1 --name ray-cluster
-# Load both versions of sidecar
-kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.26.1 --name ray-cluster
-kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.30.0 --name ray-cluster
-# Load the correct kube-state-metrics version
-kind load docker-image registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 --name ray-cluster
-# Load both versions of node-exporter
-kind load docker-image quay.io/prometheus/node-exporter:v1.8.0 --name ray-cluster
-kind load docker-image quay.io/prometheus/node-exporter:v1.9.1 --name ray-cluster
-# Load both versions of grafana
-kind load docker-image grafana/grafana:10.4.3 --name ray-cluster
-kind load docker-image grafana/grafana:12.0.0-security-01 --name ray-cluster
-kind load docker-image curlimages/curl:8.5.0 --name ray-cluster
-# Additional utilities
-kind load docker-image docker.io/library/busybox:1.31.1 --name ray-cluster
+# echo "Loading images into kind cluster..."
+# # Prometheus and monitoring related images
+# kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3 --name ray-cluster
+# kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
+# kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
+# kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
+# # Load both versions to ensure we have the right one
+# kind load docker-image quay.io/prometheus/prometheus:v2.51.0 --name ray-cluster
+# kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
+# # Load the correct alertmanager version
+# kind load docker-image quay.io/prometheus/alertmanager:v0.28.1 --name ray-cluster
+# # Load both versions of sidecar
+# kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.26.1 --name ray-cluster
+# kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.30.0 --name ray-cluster
+# # Load the correct kube-state-metrics version
+# kind load docker-image registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 --name ray-cluster
+# # Load both versions of node-exporter
+# kind load docker-image quay.io/prometheus/node-exporter:v1.8.0 --name ray-cluster
+# kind load docker-image quay.io/prometheus/node-exporter:v1.9.1 --name ray-cluster
+# # Load both versions of grafana
+# kind load docker-image grafana/grafana:10.4.3 --name ray-cluster
+# kind load docker-image grafana/grafana:12.0.0-security-01 --name ray-cluster
+# kind load docker-image curlimages/curl:8.5.0 --name ray-cluster
+# # Additional utilities
+# kind load docker-image docker.io/library/busybox:1.31.1 --name ray-cluster
 
-# KubeRay related images
-kind load docker-image quay.io/kuberay/operator:v1.3.2 --name ray-cluster
-kind load docker-image rayproject/ray:2.41.0 --name ray-cluster
-# Also load the local Ray worker image if it exists
-docker image inspect localhost:5000/ray-worker:latest >/dev/null 2>&1 && \
-  kind load docker-image localhost:5000/ray-worker:latest --name ray-cluster || \
-  echo "Skipping loading local Ray worker image as it doesn't exist"
+# # KubeRay related images
+# kind load docker-image quay.io/kuberay/operator:v1.3.2 --name ray-cluster
+# kind load docker-image spodarets/ray-worker:2.46.0-py310-aarch64 --name ray-cluster
 
 kubectl create namespace prometheus-system || true
 
@@ -99,7 +93,7 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
 
 echo "=== 3. Waiting for Prometheus stack to be ready ==="
 echo "Waiting for Prometheus operator..."
-kubectl wait --for=condition=available --timeout=60s deployment/prometheus-kube-prometheus-operator -n prometheus-system
+kubectl wait --for=condition=available --timeout=300s deployment/prometheus-kube-prometheus-operator -n prometheus-system
 
 echo "Waiting for Prometheus StatefulSet to be created..."
 while true; do
@@ -113,7 +107,6 @@ done
 
 echo "Waiting for Prometheus pod to be ready..."
 echo "This might take some time as the images are being loaded into the cluster..."
-# Increase timeout to 5 minutes to give more time for image pulls
 kubectl wait --for=condition=ready --timeout=300s pod/prometheus-prometheus-kube-prometheus-prometheus-0 -n prometheus-system
 
 echo "Waiting for Grafana..."
