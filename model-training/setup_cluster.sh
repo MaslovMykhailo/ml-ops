@@ -85,12 +85,6 @@ helm repo update
 
 kubectl create namespace prometheus-system || true
 
-# echo "Installing kube-prometheus-stack..."
-# helm install prometheus prometheus-community/kube-prometheus-stack \
-#     --namespace prometheus-system \
-#     --version 61.7.2 \
-#     -f monitoring/prometheus/prometheus-values.yaml
-
 helm install prometheus prometheus-community/kube-prometheus-stack \
     --namespace prometheus-system \
     --timeout 60s \
@@ -212,7 +206,7 @@ if [ ! -z "$HEAD_POD" ]; then
                         if jq empty monitoring/grafana/${DASHBOARD_NAME}.json 2>/dev/null; then
                             DASHBOARD_JSON=$(cat monitoring/grafana/${DASHBOARD_NAME}.json)
                             API_RESPONSE=$(curl -s -X POST http://localhost:3000/api/dashboards/db \
-                                -u "admin:prom-operator" \
+                                -u "admin:prometheus-operator" \
                                 -H "Content-Type: application/json" \
                                 -d "{
                                     \"dashboard\": $DASHBOARD_JSON,
@@ -227,6 +221,7 @@ if [ ! -z "$HEAD_POD" ]; then
                                 DASHBOARDS_IMPORTED=$((DASHBOARDS_IMPORTED + 1))
                             else
                                 echo "  ❌ Failed to import $DASHBOARD_NAME"
+                                echo "     Response: $API_RESPONSE"
                             fi
                         else
                             echo "  ⚠️ Invalid JSON for $DASHBOARD_NAME"
