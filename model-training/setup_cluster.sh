@@ -19,26 +19,24 @@ kubectl wait --for=condition=ready nodes --all --timeout=300s
 # Pre-pull the images to avoid timeout issues
 echo "Pre-pulling required images..."
 # Prometheus and monitoring related images
-docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3
+# Pull certgen
+docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4
 docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
 docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
 docker pull quay.io/thanos/thanos:v0.38.0
-# Pull both versions to ensure we have the right one
-docker pull quay.io/prometheus/prometheus:v2.51.0
+# Pull prometheus
 docker pull quay.io/prometheus/prometheus:v3.4.1
-# Pull the correct alertmanager version
+# Pull alertmanager
 docker pull quay.io/prometheus/alertmanager:v0.28.1
-# Pull both versions of sidecar
-docker pull quay.io/kiwigrid/k8s-sidecar:1.26.1
+# Pull  sidecar
 docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
-# Pull the correct kube-state-metrics version
+# Pull kube-state-metrics
 docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
-# Pull both versions of node-exporter
-docker pull quay.io/prometheus/node-exporter:v1.8.0
+# Pull node-exporter
+# docker pull quay.io/prometheus/node-exporter:v1.8.0
 docker pull quay.io/prometheus/node-exporter:v1.9.1
-# Pull both versions of grafana
-docker pull grafana/grafana:10.4.3
-docker pull grafana/grafana:12.0.0-security-01
+# Pull grafana
+docker pull grafana/grafana:12.0.1
 docker pull curlimages/curl:8.5.0
 # Additional utilities
 docker pull docker.io/library/busybox:1.31.1
@@ -49,26 +47,23 @@ docker pull spodarets/ray-worker:2.46.0-py310-aarch64
 
 echo "Loading images into kind cluster..."
 # Prometheus and monitoring related images
-kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.3 --name ray-cluster
+# Load certgen
+kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4 --name ray-cluster
 kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
 kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
 kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
-# Load both versions to ensure we have the right one
-kind load docker-image quay.io/prometheus/prometheus:v2.51.0 --name ray-cluster
+# Load prometheus
 kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
-# Load the correct alertmanager version
+# Load alertmanager
 kind load docker-image quay.io/prometheus/alertmanager:v0.28.1 --name ray-cluster
-# Load both versions of sidecar
-kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.26.1 --name ray-cluster
+# Load sidecar
 kind load docker-image quay.io/kiwigrid/k8s-sidecar:1.30.0 --name ray-cluster
-# Load the correct kube-state-metrics version
+# Load kube-state-metrics
 kind load docker-image registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 --name ray-cluster
-# Load both versions of node-exporter
-kind load docker-image quay.io/prometheus/node-exporter:v1.8.0 --name ray-cluster
+# Load node-exporter
 kind load docker-image quay.io/prometheus/node-exporter:v1.9.1 --name ray-cluster
-# Load both versions of grafana
-kind load docker-image grafana/grafana:10.4.3 --name ray-cluster
-kind load docker-image grafana/grafana:12.0.0-security-01 --name ray-cluster
+# Load grafana
+kind load docker-image grafana/grafana:12.0.1 --name ray-cluster
 kind load docker-image curlimages/curl:8.5.0 --name ray-cluster
 # Additional utilities
 kind load docker-image docker.io/library/busybox:1.31.1 --name ray-cluster
@@ -79,6 +74,7 @@ kind load docker-image spodarets/ray-worker:2.46.0-py310-aarch64 --name ray-clus
 
 echo "=== 2. Installing Prometheus Stack ==="
 # https://docs.ray.io/en/latest/cluster/kubernetes/k8s-ecosystem/prometheus-grafana.html
+
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm repo update
