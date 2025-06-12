@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  google-dns.server: |
+    .:53 {
+        forward . 8.8.8.8 8.8.4.4
+        cache
+    } 
