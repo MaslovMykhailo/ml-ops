@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Скрипт тренування YOLOv8n з інтеграцією Weights & Biases
-Тренує модель YOLOv8n на CPU з повним відстеженням W&B та збереженням моделі
-Використовує вбудовану інтеграцію YOLO W&B
+YOLOv8n training script with Weights & Biases integration
+Trains YOLOv8n model on CPU with full W&B tracking and model saving
+Uses built-in YOLO W&B integration
 """
 
 import os
@@ -14,29 +14,29 @@ from ultralytics import YOLO
 import torch
 
 def load_config(config_path="config.yaml"):
-    """Завантажує конфігурацію з YAML файлу"""
+    """Loads configuration from YAML file"""
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
     return config
 
 def setup_wandb_environment():
-    """Налаштовує середовище W&B та вмикає інтеграцію YOLO W&B"""
-    # Завантажуємо змінні середовища
+    """Sets up W&B environment and enables YOLO W&B integration"""
+    # Load environment variables
     load_dotenv()
     
-    # Отримуємо API ключ W&B з середовища
+    # Get W&B API key from environment
     wandb_api_key = os.getenv('WANDB_API_KEY')
     if not wandb_api_key:
         print("Warning: WANDB_API_KEY not found in environment variables")
         print("Please set your W&B API key in .env file")
         return False
     
-    # Входимо в W&B
+    # Login to W&B
     try:
         wandb.login(key=wandb_api_key)
         print("✅ Successfully logged in to W&B")
         
-        # Вмикаємо логування W&B в налаштуваннях YOLO
+        # Enable W&B logging in YOLO settings
         from ultralytics.utils import SETTINGS
         SETTINGS['wandb'] = True
         print("✅ W&B logging enabled in YOLO settings")
@@ -47,19 +47,19 @@ def setup_wandb_environment():
         return False
 
 def train_model(config):
-    """Тренує модель YOLOv8n з вбудованим відстеженням W&B"""
+    """Trains YOLOv8n model with built-in W&B tracking"""
     
-    # Перевизначаємо run_name змінною середовища, якщо встановлено
+    # Override run_name with environment variable if set
     run_name = os.getenv('WANDB_RUN_NAME', config['run_name'])
     
     print("🚀 Starting YOLOv8n training on CPU...")
     print(f"📊 W&B Project: {config['wandb_project']}")
     print(f"🏃 Run Name: {run_name}")
     
-    # Ініціалізуємо модель
+    # Initialize model
     model = YOLO(config['model'])
     
-    # Параметри тренування - YOLO автоматично обробить інтеграцію W&B
+    # Training parameters - YOLO will automatically handle W&B integration
     train_args = {
         'data': config['data'],
         'epochs': config['epochs'],
@@ -73,15 +73,15 @@ def train_model(config):
         'weight_decay': config['weight_decay'],
         'save': config['save'],
         'save_period': config['save_period'],
-        'project': config['wandb_project'],  # Назва проєкту W&B
-        'name': run_name,                    # Назва запуску W&B (динамічна)
+        'project': config['wandb_project'],  # W&B project name
+        'name': run_name,                    # W&B run name (dynamic)
         'plots': True,
         'verbose': True
     }
     
     print(f"🔧 Training parameters: {train_args}")
     
-    # Починаємо тренування - YOLO автоматично логуватиме в W&B
+    # Start training - YOLO will automatically log to W&B
     results = model.train(**train_args)
     
     print("✅ Training completed with built-in W&B logging!")
@@ -89,30 +89,30 @@ def train_model(config):
     return model, results
 
 def main():
-    """Головна функція тренування"""
+    """Main training function"""
     print("=" * 60)
     print("🤖 YOLOv8n CPU Training with W&B Integration")
     print("=" * 60)
     
-    # Перевіряємо, чи працюємо на CPU
+    # Check if we're running on CPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"🖥️  Device: {device}")
     
     try:
-        # Завантажуємо конфігурацію
+        # Load configuration
         config = load_config()
         
-        # Примусово використовуємо CPU, як зазначено в вимогах
+        # Force CPU usage as specified in requirements
         config['device'] = 'cpu'
         
-        # Налаштовуємо середовище W&B (вхід та вмикання інтеграції YOLO)
+        # Set up W&B environment (login and enable YOLO integration)
         if not setup_wandb_environment():
             print("⚠️  Continuing without W&B logging")
         
-        # Тренуємо модель з вбудованою інтеграцією W&B
+        # Train model with built-in W&B integration
         model, results = train_model(config)
         
-        # Отримуємо кінцеву назву запуску (може бути перевизначена середовищем)
+        # Get final run name (may be overridden by environment)
         final_run_name = os.getenv('WANDB_RUN_NAME', config['run_name'])
         
         print("✅ Training completed successfully!")

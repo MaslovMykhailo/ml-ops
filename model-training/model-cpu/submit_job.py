@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Скрипт подання завдання Ray
-Подає ray_job.py як завдання Ray з завантаженням файлів
+Ray job submission script
+Submits ray_job.py as a Ray task with file uploads
 """
 
 import os
@@ -11,10 +11,10 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Зменшуємо детальність логування Ray
+# Reduce Ray logging verbosity
 logging.getLogger("ray").setLevel(logging.WARNING)
 
-# Завантажуємо змінні середовища з .env файлу
+# Load environment variables from .env file
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -26,7 +26,7 @@ except Exception as e:
     print(f"⚠️  Could not load .env file: {e}")
 
 def load_config(config_path="config.yaml"):
-    """Завантажує конфігурацію з YAML файлу"""
+    """Loads configuration from YAML file"""
     try:
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
@@ -36,7 +36,7 @@ def load_config(config_path="config.yaml"):
         return None
 
 def check_required_files():
-    """Перевіряє, чи існують всі необхідні файли"""
+    """Checks if all required files exist"""
     required_files = ["train_yolo.py", "config.yaml", "requirements.txt", "ray_job.py"]
     missing_files = [f for f in required_files if not Path(f).exists()]
     
@@ -48,7 +48,7 @@ def check_required_files():
     return True
 
 def prepare_job_files():
-    """Підготовляє файли для завдання Ray"""
+    """Prepares files for Ray job"""
     files_to_upload = [
         "train_yolo.py",
         "config.yaml", 
@@ -69,25 +69,25 @@ def prepare_job_files():
 
 @ray.remote
 def run_ray_job(file_contents):
-    """Запускає ray_job.py на воркері Ray з завантаженими файлами"""
+    """Runs ray_job.py on Ray worker with uploaded files"""
     import subprocess
     import sys
     import tempfile
     import os
     
-    # Створюємо тимчасову директорію та записуємо файли
+    # Create temporary directory and write files
     temp_dir = tempfile.mkdtemp()
     os.chdir(temp_dir)
     
-    # Записуємо всі файли на воркер
+    # Write all files to worker
     for filename, content in file_contents.items():
         with open(filename, 'w') as f:
             f.write(content)
     
-    # Змінні середовища тепер встановлюються через runtime_env
+    # Environment variables are now set through runtime_env
     print("✅ Files uploaded and environment configured")
     
-    # Запускаємо ray_job.py
+    # Run ray_job.py
     try:
         result = subprocess.run([sys.executable, "ray_job.py"], 
                               capture_output=True, text=True, check=True)
@@ -100,25 +100,25 @@ def run_ray_job(file_contents):
         return False
 
 def main():
-    """Головна функція"""
+    """Main function"""
     print("🚀 Ray Task Submission for YOLO Training")
     print("=" * 40)
     
-    # Адреса кластера Ray
-    ray_address = "ray://localhost:10001"  # Адреса кластера Ray
+    # Ray cluster address
+    ray_address = "ray://localhost:10001"  # Ray cluster address
     
-    # Перевіряємо необхідні файли
+    # Check required files
     if not check_required_files():
         return
     
-    # Збираємо змінні середовища W&B
+    # Collect W&B environment variables
     wandb_env = {
         'WANDB_API_KEY': os.getenv('WANDB_API_KEY'),
         'WANDB_PROJECT': os.getenv('WANDB_PROJECT'),
         'WANDB_ENTITY': os.getenv('WANDB_ENTITY')
     }
     
-    # Перевіряємо конфігурацію W&B (не показуючи значення)
+    # Check W&B configuration (without showing values)
     print("🔑 W&B Environment Variables:")
     for key, value in wandb_env.items():
         if value:
@@ -131,12 +131,12 @@ def main():
         print("   Set it with: export WANDB_API_KEY=your_key")
         print("   Or get it from: https://wandb.ai/authorize")
     
-    # Ініціалізуємо Ray
+    # Initialize Ray
     try:
         if not ray.is_initialized():
             ray.init(address=ray_address)
             print(f"✅ Connected to Ray cluster at {ray_address}")
-            print("-" * 40)  # Роздільник після логів підключення Ray
+            print("-" * 40)  # Separator after Ray connection logs
     except Exception as e:
         print(f"❌ Cannot connect to Ray cluster at {ray_address}: {e}")
         print("   Make sure Ray cluster is running:")
@@ -144,26 +144,26 @@ def main():
         return
     
     try:
-        # Підготовляємо файли
+        # Prepare files
         print("📁 Preparing files...")
         file_contents = prepare_job_files()
         if not file_contents:
             return
         
-        # Подаємо завдання
+        # Submit job
         print("🚀 Submitting ray_job.py as Ray task...")
         
-        # Завантажуємо конфігурацію для отримання базової назви запуску
+        # Load configuration to get base run name
         config = load_config()
         base_run_name = config.get('run_name', 'yolo-ray-training') if config else 'yolo-ray-training'
         
-        # Генеруємо динамічну назву запуску з часовою міткою
+        # Generate dynamic run name with timestamp
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
         run_name = f"{base_run_name}-{timestamp}"
         
-        # Підготовляємо середовище виконання зі змінними W&B
-        env_vars = {k: v for k, v in wandb_env.items() if v}  # Лише непорожні значення
-        env_vars['WANDB_RUN_NAME'] = run_name  # Додаємо динамічну назву запуску
+        # Prepare runtime environment with W&B variables
+        env_vars = {k: v for k, v in wandb_env.items() if v}  # Only non-empty values
+        env_vars['WANDB_RUN_NAME'] = run_name  # Add dynamic run name
         
         runtime_env = {
             "env_vars": env_vars
@@ -172,7 +172,7 @@ def main():
         print(f"📋 Runtime environment: {len(runtime_env['env_vars'])} variables")
         print(f"🏃 Run name: {run_name}")
         for key in runtime_env['env_vars'].keys():
-            if key != 'WANDB_API_KEY':  # Не показуємо API ключ
+            if key != 'WANDB_API_KEY':  # Don't show API key
                 print(f"   - {key}")
             else:
                 print(f"   - {key} (hidden)")
@@ -181,10 +181,10 @@ def main():
             print("⚠️  No environment variables to pass!")
             print("   Make sure .env file exists or variables are exported")
         
-        # Подаємо завдання з середовищем виконання
+        # Submit task with runtime environment
         task = run_ray_job.options(runtime_env=runtime_env).remote(file_contents)
         
-        # Чекаємо завершення
+        # Wait for completion
         print("👀 Waiting for task completion...")
         success = ray.get(task)
         
