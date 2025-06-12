@@ -1,0 +1,16 @@
+[project]
+name = "ml-ops"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Mykhailo Maslov",email = "maslov.mikhail200@gmail.com"}
+]
+readme = "README.md"
+requires-python = "3.10.18"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
