@@ -1,0 +1,19 @@
+model: yolov8n.pt
+data: coco8.yaml
+
+epochs: 3
+batch: 16
+imgsz: 640
+device: cpu
+workers: 2
+
+optimizer: "Adam"
+lr0: 0.01
+momentum: 0.937
+weight_decay: 0.0005
+
+wandb_project: "ml-ops-yolo-cpu"
+run_name: "yolo-cpu-ray-training"
+
+save: true
+save_period: 5 
