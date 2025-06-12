@@ -40,6 +40,9 @@ def install_requirements():
     """Встановлює Python вимоги на воркері"""
     print("📦 Installing Python requirements...")
     try:
+        subprocess.run([
+            sys.executable, "-m", "pip", "config", "--user", "set", "global.index-url", "https://pypi.org/simple/"
+        ])
         result = subprocess.run([
             sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
         ], capture_output=True, text=True, check=True)
