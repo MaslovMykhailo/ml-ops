@@ -18,7 +18,7 @@ services:
       otel-collector:
         condition: service_started
 
-  # OpenTelemetry Collector - для даних YOLO
+  # OpenTelemetry Collector - for YOLO data
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
@@ -36,7 +36,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ClickHouse - детальні дані YOLO
+  # ClickHouse - detailed YOLO data
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     container_name: clickhouse
@@ -62,7 +62,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # Grafana - підключений до ClickHouse + Prometheus
+  # Grafana - connected to ClickHouse + Prometheus
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -82,7 +82,7 @@ services:
       prometheus:
         condition: service_started
 
-  # Prometheus - системні та інфраструктурні метрики
+  # Prometheus - system and infrastructure metrics
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -99,7 +99,7 @@ services:
     networks:
       - monitoring
 
-  # Node Exporter - системні метрики хоста (ЦП, пам'ять)
+  # Node Exporter - system metrics of the host (CPU, memory)
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
