@@ -17,3 +17,5 @@ wandb
 minio-data
 postgres-data
 label-studio-data
+
+*.pt
