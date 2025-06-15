@@ -19,8 +19,13 @@ dependencies = [
     "python-dotenv (>=1.1.0,<2.0.0)",
     "ray[data,serve,train,tune] (==2.46.0)",
     "requests (>=2.32.4,<3.0.0)",
+    "pandas (>=2.3.0,<3.0.0)",
+    "evidently (>=0.7.7,<0.8.0); python_version>='3.10' and python_version<'4.0'",
+    "clickhouse-driver (>=0.2.9,<0.3.0); python_version>='3.10' and python_version<'4.0'",
 ]
 
+[tool.poetry]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
