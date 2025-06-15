@@ -211,7 +211,7 @@ def main():
             filename = os.path.basename(image_input)
             
         path = Path(filename)
-        output_path = f"{path.stem}_detected{path.suffix}"
+        output_path = os.path.join("output", f"{path.stem}_detected{path.suffix}")
         
         # Draw bounding boxes for all detections
         if draw_detections(image, result['detections'], output_path):
