@@ -16,13 +16,22 @@ kind create cluster --config kind/kind-config.yaml
 echo "Waiting for cluster to be ready..."
 kubectl wait --for=condition=ready nodes --all --timeout=300s
 
+echo "=== 1.1. Applying k8s configurations ==="
+echo "Applying CoreDNS configurations..."
+kubectl apply -f k8s/coredns-config.yaml
+kubectl apply -f k8s/coredns-custom.yaml
+kubectl apply -f k8s/dns-network-policy.yaml
+
+echo "Waiting for CoreDNS to be ready..."
+kubectl wait --for=condition=ready pod -l k8s-app=kube-dns -n kube-system --timeout=300s
+
 # Pre-pull the images to avoid timeout issues
 echo "Pre-pulling required images..."
 # Prometheus and monitoring related images
 # Pull certgen
 docker pull registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4
-docker pull quay.io/prometheus-operator/prometheus-operator:v0.82.2
-docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
+docker pull quay.io/prometheus-operator/prometheus-operator:v0.83.0
+docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0
 docker pull quay.io/thanos/thanos:v0.38.0
 # Pull prometheus
 docker pull quay.io/prometheus/prometheus:v3.4.1
@@ -33,7 +42,6 @@ docker pull quay.io/kiwigrid/k8s-sidecar:1.30.0
 # Pull kube-state-metrics
 docker pull registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
 # Pull node-exporter
-# docker pull quay.io/prometheus/node-exporter:v1.8.0
 docker pull quay.io/prometheus/node-exporter:v1.9.1
 # Pull grafana
 docker pull grafana/grafana:12.0.1
@@ -49,8 +57,8 @@ echo "Loading images into kind cluster..."
 # Prometheus and monitoring related images
 # Load certgen
 kind load docker-image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4 --name ray-cluster
-kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.82.2 --name ray-cluster
-kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2 --name ray-cluster
+kind load docker-image quay.io/prometheus-operator/prometheus-operator:v0.83.0 --name ray-cluster
+kind load docker-image quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0 --name ray-cluster
 kind load docker-image quay.io/thanos/thanos:v0.38.0 --name ray-cluster
 # Load prometheus
 kind load docker-image quay.io/prometheus/prometheus:v3.4.1 --name ray-cluster
